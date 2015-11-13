@@ -5,22 +5,36 @@ export default class Store {
    */
 
   constructor (name) {
+    var store;
+
     this.window = window;
 
     if (!this.window || !this.window.localStorage) {
-      Helpers._logError(new Error("localStorage is not defined!"));
+      Store._logError(new Store._Error("localStorage is not defined!"));
 
       return ;
     }
 
-    this.name   = name;
-    this.state  = null;
-    this.ls     = this.window.localStorage;
-    this.store  = this._getAndDeserialize();
+    this._name   = name;
+    this._state  = null;
+    this._ls     = this.window.localStorage;
 
-    if (this.store === null || typeof this.store !== "object" || Array.isArray(this.store) || this.store instanceof Error) {
-      this.store = {};
-      this._serializeAndSet();
+    store = this._getAndDeserialize();
+
+    if (store instanceof Error) {
+      return;
+    }
+
+    this._store = store;
+
+    if (this._store === null || typeof this._store !== "object" || Array.isArray(this._store) || this._store instanceof Error) {
+      this._store = {};
+
+      if (!this._serializeAndSet()) {
+        Store._logError(new Store._Error("Error when trying to set data to localStorage!"));
+
+        return;
+      }
     }
 
     this._changeStorageHandler = this._changeStorageHandler.bind(this);
@@ -39,14 +53,14 @@ export default class Store {
     this.window.removeEventListener("storage", this._changeStorageHandler);
 
     if (removeStorage) {
-      this.ls.removeItem(this.name);
+      this._ls.removeItem(this._name);
     }
 
     this.window = null;
-    this.name   = null;
-    this.ls     = null;
-    this.store  = null;
-    this.state  = null;
+    this._name   = null;
+    this._ls     = null;
+    this._store  = null;
+    this._state  = null;
   }
 
   /*
@@ -56,16 +70,16 @@ export default class Store {
    */
 
   set (key, val) {
-    var store = this.store,
+    var store = this._store,
       parts = key.split('.'),
-      _val = val;
+      _val = val === "object" ? Store.clone(val) : val;
 
     if (typeof key !== "string") {
-      return ;
+      return Store._Error("key should be a string");
     }
 
     if (_val === undefined) {
-      return this.store.remove(key)
+      return this._store.remove(key)
     }
 
     if (typeof val === "function") {
@@ -84,9 +98,11 @@ export default class Store {
       }
     }
 
-    this.state = "writing";
+    this._state = "writing";
 
-    this._serializeAndSet();
+    if (!this._serializeAndSet()) {
+      return new Store._Error("Error when trying to set data to localStorage!")
+    }
 
     return _val;
   }
@@ -98,8 +114,12 @@ export default class Store {
    */
 
   get (key, defaultValue) {
-    var store = this.store,
+    var store = this._store,
       parts = key.split(".");
+
+    if (typeof key !== "string") {
+      return Store._Error("key should be a string");
+    }
 
     for (let val of parts) {
       let _store = store[val];
@@ -109,7 +129,11 @@ export default class Store {
       store = _store;
     }
 
-    return store === undefined ? defaultValue : store;
+    if (store === undefined ) {
+      return defaultValue;
+    }
+
+    return store === "object" ? Store.clone(store) : store;
   }
 
   /*
@@ -117,7 +141,7 @@ export default class Store {
    */
 
   getAll () {
-    return this.store;
+    return Store.clone(this._store);
   }
 
   /*
@@ -126,9 +150,13 @@ export default class Store {
    */
 
   remove (key) {
-    var store = this.store,
+    var store = this._store,
       parts = key.split('.'),
       val = undefined;
+
+    if (typeof key !== "string") {
+      return Store._Error("key should be a string");
+    }
 
     for (let i = 0; i < parts.length; i += 1) {
       if (typeof store[parts[i]] === "undefined") {
@@ -143,25 +171,38 @@ export default class Store {
       }
     }
 
-    this._serializeAndSet();
+    if (!this._serializeAndSet()) {
+      return new Store._Error("Error when trying to set data to localStorage!")
+    }
 
     return val;
   }
 
   _getAndDeserialize () {
-    return Store.deserialize(this.ls.getItem(this.name));
+    return Store.deserialize(this._ls.getItem(this._name));
   }
 
   _serializeAndSet () {
-    this.ls.setItem(this.name, Store.serialize(this.store));
+    try {
+      this._ls.setItem(this._name, Store.serialize(this._store));
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   _changeStorageHandler (event) {
-    if (event.key !== this.name || this.state === "writing") {
-      return this.state = null;
+    if (event.key !== this._name || this._state === "writing") {
+      return this._state = null;
     }
 
-    this.store = this._getAndDeserialize();
+    var store = this._getAndDeserialize();
+
+    if (store instanceof Error) {
+      return;
+    }
+
+    this._store = store;
   }
 
   /*
@@ -185,12 +226,25 @@ export default class Store {
     try {
       return JSON.parse(string)
     } catch(e) {
-      Helpers._logError(e);
+      Store._logError(e);
       return e;
     }
   }
 
+  /*
+   * cone object
+   * @param {obj}
+   */
+
+  static clone (obj) {
+    return JSON.parse(JSON.stringify(obj))
+  }
+
   static _logError (error) {
     console.error(error);
+  }
+
+  static _Error (message) {
+    return new Error(message);
   }
 }
