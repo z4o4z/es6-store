@@ -206,6 +206,15 @@ export default class Store {
   }
 
   /*
+   * Clears local storage.
+   */
+  
+  clear () {
+    this.store = {};
+    this._serializeAndSet();
+  }
+
+  /*
    * from object to string
    * @param {object}
    */
