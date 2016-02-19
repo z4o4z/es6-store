@@ -1,6 +1,6 @@
 {
   "name": "es6-store",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "es6 local storage library ",
   "main": "src/Store.js",
   "scripts": {
@@ -10,6 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/overhawlin/es6-store.git"
   },
+  "keywords": ["localstorage", "local storage", "es6", "es2015", "ecmascript 6", "ecmascript 2015"],
   "author": "Evgeny Zaytsev <overhawlin@gmail.com>",
   "license": "MIT",
   "bugs": {

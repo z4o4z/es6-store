@@ -253,7 +253,7 @@ export default class Store {
    */
 
   static clone (obj) {
-    return Object.assign({}, obj);
+    return JSON.parse(JSON.stringify(obj));
   }
 
   static __logError (error) {
