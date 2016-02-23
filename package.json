@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/overhawlin/es6-store.git"
+    "url": "git+https://github.com/z4o4z/es6-store.git"
   },
   "keywords": [
     "localstorage",
@@ -21,9 +21,9 @@
   "author": "Evgeny Zaytsev <overhawlin@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/overhawlin/es6-store/issues"
+    "url": "https://github.com/z4o4z/es6-store/issues"
   },
-  "homepage": "https://github.com/overhawlin/es6-store#readme",
+  "homepage": "https://github.com/z4o4z/es6-store#readme",
   "devDependencies": {
     "babel-preset-es2015": "^6.1.18",
     "gulp": "^3.9.0",
