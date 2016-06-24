@@ -4,7 +4,10 @@
   "description": "es6 local storage library ",
   "main": "src/Store.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "development": "webpack-dev-server --env=loc",
+    "build-dev": "webpack --env=dev",
+    "build-prod": "webpack --env=prod",
+    "lint": "eslint **/*.js"
   },
   "repository": {
     "type": "git",
