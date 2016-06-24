@@ -1,6 +1,6 @@
 {
   "name": "es6-store",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "description": "es6 local storage library ",
   "main": "src/Store.js",
   "scripts": {
