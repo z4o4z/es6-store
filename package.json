@@ -4,7 +4,7 @@
   "description": "es6 local storage library ",
   "main": "src/Store.js",
   "scripts": {
-    "development": "webpack-dev-server --env=loc",
+    "development": "webpack-dev-server --env=dev",
     "build-dev": "webpack --env=dev",
     "build-prod": "webpack --env=prod",
     "lint": "eslint **/*.js"
