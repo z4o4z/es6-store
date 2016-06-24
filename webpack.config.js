@@ -11,7 +11,7 @@ const ENV = args.e || args.env || args.environment || 'dev';
 const IS_DEV = ENV === 'dev';
 const IS_PROD = ENV === 'prod';
 
-let entry = ['babel-polyfill', path.join(__dirname, 'src', 'index.js')];
+let entry = ['babel-polyfill', path.join(__dirname, 'src', 'Store.js')];
 
 let output = {
   path: PATH_DIST,
