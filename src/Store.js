@@ -1,7 +1,7 @@
-let ls          = Symbol('localStorage');
-let store       = Symbol('store');
-let name        = Symbol('name');
-let isWriting   = Symbol('isWriting');
+let __ls = Symbol('localStorage');
+let __store = Symbol('store');
+let __name = Symbol('name');
+let __isWriting = Symbol('isWriting');
 
 export default class Store {
 
@@ -9,20 +9,18 @@ export default class Store {
    * @param {string} name of local storage item
    */
 
-  constructor (name) {
-    var store;
+  constructor(name) {
+    let store;
 
     this.window = window;
 
     if (!this.window || !this.window.localStorage) {
-      Store.__logError(new Store.__error("localStorage is not defined!"));
-
-      return ;
+      return Store.__logError(new Store.__error("localStorage is not defined!"));
     }
 
-    this[name]       = name;
-    this[isWriting]  = false;
-    this[ls]        = this.window.localStorage;
+    this[__name] = name;
+    this[__isWriting] = false;
+    this[__ls] = this.window.localStorage;
 
     store = this.__getAndDeserialize();
 
@@ -30,10 +28,10 @@ export default class Store {
       return;
     }
 
-    this[store] = store;
+    this[__store] = store;
 
-    if (this[store] === null || typeof this[store] !== "object" || Array.isArray(this[store]) || this[store] instanceof Error) {
-      this[store] = {};
+    if (this[__store] === null || typeof this[__store] !== "object" || Array.isArray(this[__store]) || this[__store] instanceof Error) {
+      this[__store] = {};
 
       if (!this.__serializeAndSet()) {
         Store.__logError(new Store.__error("Error when trying to set data to localStorage!"));
@@ -52,20 +50,22 @@ export default class Store {
    * @param {boolean} if true, local storage item will be removed
    */
 
-  destructor (removeStorage) {
-    if (this.window === undefined) { return; }
+  destructor(removeStorage) {
+    if (this.window === undefined) {
+      return;
+    }
 
     this.window.removeEventListener("storage", this.__changeStorageHandler);
 
     if (removeStorage) {
-      this[ls].removeItem(this[name]);
+      this[__ls].removeItem(this[__name]);
     }
 
-    this.window     = null;
-    this[name]       = null;
-    this[ls]        = null;
-    this[store]     = null;
-    this[isWriting]  = false;
+    this.window = null;
+    this[__name] = null;
+    this[__ls] = null;
+    this[__store] = null;
+    this[__isWriting] = false;
   }
 
   /*
@@ -74,10 +74,10 @@ export default class Store {
    * @param {object|number|string|boolean} val which you want set
    */
 
-  set (key, val) {
-    var store = this[store],
-      parts = key.split('.'),
-      _val = typeof val === "object" ? Store.clone(val) : val;
+  set(key, val) {
+    let store = this[__store];
+    let parts = key.split('.');
+    let _val = typeof val === "object" ? Store.clone(val) : val;
 
     if (typeof key !== "string") {
       return Store.__error("key should be a string");
@@ -88,7 +88,7 @@ export default class Store {
     }
 
     if (_val === undefined) {
-      return this[store].remove(key)
+      return this[__store].remove(key);
     }
 
     for (let i = 0, length = parts.length; i < length; i += 1) {
@@ -96,17 +96,17 @@ export default class Store {
         store[parts[i]] = {};
       }
 
-      if (i !== length - 1) {
-        store = store[parts[i]];
-      } else {
+      if (i === length - 1) {
         store[parts[i]] = _val;
+      } else {
+        store = store[parts[i]];
       }
     }
 
-    this[isWriting] = true;
+    this[__isWriting] = true;
 
     if (!this.__serializeAndSet()) {
-      return new Store.__error("Trying to set data in localStorage is failed!")
+      return new Store.__error("Trying to set data in localStorage is failed!");
     }
 
     return _val;
@@ -118,9 +118,9 @@ export default class Store {
    * @param {object|number|string|boolean} defaultValue if key is undefined
    */
 
-  get (key, defaultValue) {
-    var store = this[store],
-      parts = key.split(".");
+  get(key, defaultValue) {
+    let store = this[__store];
+    let parts = key.split(".");
 
     if (typeof key !== "string") {
       return Store.__error("key should be a string");
@@ -130,13 +130,15 @@ export default class Store {
       if (parts.hasOwnProperty(val)) {
         let _store = store[val];
 
-        if (_store === undefined) { return defaultValue }
+        if (_store === undefined) {
+          return defaultValue;
+        }
 
         store = _store;
       }
     }
 
-    if (store === undefined ) {
+    if (store === undefined) {
       return defaultValue;
     }
 
@@ -147,8 +149,8 @@ export default class Store {
    * return all local storage data
    */
 
-  getAll () {
-    return Store.clone(this[store]);
+  getAll() {
+    return Store.clone(this[__store]);
   }
 
   /*
@@ -156,10 +158,10 @@ export default class Store {
    * @param {string} value of key which you want remove
    */
 
-  remove (key) {
-    var store = this[store],
-      parts = key.split('.'),
-      val = undefined;
+  remove(key) {
+    let store = this[__store];
+    let parts = key.split('.');
+    let val;
 
     if (typeof key !== "string") {
       return Store.__error("key should be a string");
@@ -170,37 +172,38 @@ export default class Store {
         return;
       }
 
-      if (i !== parts.length - 1) {
-        store = store[parts[i]];
-      } else {
+      if (i === parts.length - 1) {
         val = store[parts[i]];
         delete store[parts[i]];
+      } else {
+        store = store[parts[i]];
       }
     }
 
     if (!this.__serializeAndSet()) {
-      return new Store.__error("Trying to set data in localStorage is failed!")
+      return Store.__error("Trying to set data in localStorage is failed!");
     }
 
     return val;
   }
 
-  __getAndDeserialize () {
-    return Store.deserialize(this[ls].getItem(this[name]));
+  __getAndDeserialize() {
+    return Store.deserialize(this[__ls].getItem(this[__name]));
   }
 
-  __serializeAndSet () {
+  __serializeAndSet() {
     try {
-      this[ls].setItem(this[name], Store.serialize(this[store]));
+      this[__ls].setItem(this[__name], Store.serialize(this[__store]));
       return true;
     } catch (e) {
       return false;
     }
   }
 
-  __changeStorageHandler (event) {
-    if (event.key !== this[name] || this[isWriting]) {
-      return this[isWriting] = false;
+  __changeStorageHandler(event) {
+    if (event.key !== this[__name] || this[__isWriting]) {
+      this[__isWriting] = false;
+      return;
     }
 
     var store = this.__getAndDeserialize();
@@ -209,14 +212,14 @@ export default class Store {
       return;
     }
 
-    this[store] = store;
+    this[__store] = store;
   }
 
   /*
    * Clears local storage.
    */
-  
-  clear () {
+
+  clear() {
     this.store = {};
     this.__serializeAndSet();
   }
@@ -226,7 +229,7 @@ export default class Store {
    * @param {object}
    */
 
-  static serialize (data) {
+  static serialize(data) {
     return JSON.stringify(data);
   }
 
@@ -235,13 +238,15 @@ export default class Store {
    * @param {string}
    */
 
-  static deserialize (string) {
-    if (typeof string !== "string") { return; }
+  static deserialize(string) {
+    if (typeof string !== "string") {
+      return;
+    }
 
     // try to parse string
     try {
-      return JSON.parse(string)
-    } catch(e) {
+      return JSON.parse(string);
+    } catch (e) {
       Store.__logError(e);
       return e;
     }
@@ -252,15 +257,15 @@ export default class Store {
    * @param {obj}
    */
 
-  static clone (obj) {
+  static clone(obj) {
     return JSON.parse(JSON.stringify(obj));
   }
 
-  static __logError (error) {
+  static __logError(error) {
     console.error(error);
   }
 
-  static __error (message) {
+  static __error(message) {
     return new Error(message);
   }
 }
