@@ -204,7 +204,7 @@ export default class Store {
       return this.clear();
     }
 
-    if (!isKeyAString()) {
+    if (!isKeyAString(key)) {
       return keyIsNotAString();
     }
 
