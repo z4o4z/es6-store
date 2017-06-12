@@ -1,13 +1,16 @@
 {
   "name": "es6-store",
   "version": "1.0.0",
-  "description": "es6 local storage library ",
-  "main": "src/Store.js",
+  "description": "es6 local storage library",
+  "main": "lib/index.js",
   "scripts": {
-    "development": "webpack-dev-server --env=dev",
-    "build-dev": "webpack --env=dev",
-    "build-prod": "webpack --env=prod",
-    "lint": "eslint **/*.js"
+    "start": "webpack-dev-server --env.env=loc",
+    "prepublish": "npm run build:dev && npm run build:lib && npm run build:prod",
+    "build:dev": "webpack --env.env=dev",
+    "build:lib": "babel src --out-dir lib",
+    "build:prod": "webpack --env.env=prod",
+    "lint": "eslint src/store.js",
+    "format": "prettier-eslint --write src/store.js"
   },
   "repository": {
     "type": "git",
@@ -28,20 +31,28 @@
   },
   "homepage": "https://github.com/z4o4z/es6-store#readme",
   "dependencies": {
-    "babel-polyfill": "^6.9.1"
+    "core-js": "^2.4.1"
   },
   "devDependencies": {
+    "babel-cli": "^6.24.1",
     "babel-core": "^6.9.1",
-    "babel-eslint": "^6.0.4",
-    "babel-loader": "^6.2.4",
+    "babel-eslint": "^7.2.3",
+    "babel-loader": "^7.0.0",
+    "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-transform-runtime": "^6.9.0",
+    "babel-plugin-version-inline": "^1.0.0",
     "babel-preset-es2015": "^6.9.0",
-    "eslint": "^2.11.1",
-    "eslint-config-google": "^0.5.0",
+    "eslint": "^4.0.0",
+    "eslint-config-airbnb-base": "^11.2.0",
     "eslint-loader": "^1.3.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-prettier": "^2.0.1",
+    "eslint-plugin-react": "^7.0.1",
     "html-webpack-plugin": "^2.19.0",
-    "webpack": "^1.13.1",
-    "webpack-dev-server": "^1.14.1",
-    "yargs": "^4.7.1"
+    "prettier": "^1.1.0",
+    "prettier-eslint-cli": "^4.0.4",
+    "uglifyjs-webpack-plugin": "^0.4.3",
+    "webpack": "^2.6.1",
+    "webpack-dev-server": "^2.4.5"
   }
 }

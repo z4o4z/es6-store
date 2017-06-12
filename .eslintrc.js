@@ -1,19 +1,21 @@
 module.exports = {
-  "parser": "babel-eslint",
-  "extends": ["google"],
-  "rules": {
-    "max-len": [0, 120, 2],
-    "camelcase": [2, {
-      "properties": "never"
-    }],
-    "require-jsdoc": 0,
-    "no-debugger": 1
+  parser: 'babel-eslint',
+  extends: ['airbnb-base'],
+  rules: {
+    'max-len': [0, 100, 2],
+    'no-underscore-dangle': 0,
+    'no-prototype-builtins': 0,
+    camelcase: [
+      2,
+      {
+        properties: 'never',
+      },
+    ],
   },
-  "env": {
-    "browser": true
+  env: {
+    browser: true,
   },
-  "globals": {
-    "IS_DEV": true,
-    "IS_PROD": true
-  }
+  globals: {
+    __VERSION__: true,
+  },
 };

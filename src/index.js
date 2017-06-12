@@ -1,4 +1,4 @@
-'use strict';
+import Symbol from 'core-js/es6/symbol';
 
 const __ls = Symbol('localStorage');
 const __store = Symbol('store');
@@ -12,11 +12,13 @@ function isWindowAndHasLS(window) {
 }
 
 function isValidObject(object) {
-  return object && typeof object === "object" && !Array.isArray(object) && !(object instanceof Error);
+  return (
+    object && typeof object === 'object' && !Array.isArray(object) && !(object instanceof Error)
+  );
 }
 
-function logError(error) {
-  console.error(error);
+function logError(err) {
+  console.error(err);
 }
 
 function error(message) {
@@ -24,15 +26,14 @@ function error(message) {
 }
 
 function keyIsNotAString() {
-  return error("key should be a string");
+  return error('key should be a string');
 }
 
 function isKeyAString(key) {
-  return typeof key === "string";
+  return typeof key === 'string';
 }
 
 export default class Store {
-
   /*
    * from object to string
    * @param {object}
@@ -62,9 +63,10 @@ export default class Store {
    */
   constructor(name) {
     if (!isWindowAndHasLS(window)) {
-      return logError(error("window or localStorage is not defined!"));
+      return logError(error('window or localStorage is not defined!'));
     }
 
+    this.version = __VERSION__;
     this[__window] = window;
     this[__name] = name;
     this[__isWriting] = false;
@@ -86,7 +88,7 @@ export default class Store {
 
     this.__changeStorageHandler = this.__changeStorageHandler.bind(this);
 
-    this[__window].addEventListener("storage", this.__changeStorageHandler);
+    this[__window].addEventListener('storage', this.__changeStorageHandler);
   }
 
   /*
@@ -94,7 +96,7 @@ export default class Store {
    * @param {boolean} if true, local storage item will be removed
    */
   destructor(removeStorage) {
-    this[__window].removeEventListener("storage", this.__changeStorageHandler);
+    this[__window].removeEventListener('storage', this.__changeStorageHandler);
 
     if (removeStorage) {
       this[__ls].removeItem(this[__name]);
@@ -118,11 +120,11 @@ export default class Store {
     }
 
     let store = this[__store];
-    let parts = key.split('.');
-    let lastKey = parts.pop();
-    let _val = typeof val === "object" ? Store.clone(val) : val;
+    let _val = typeof val === 'object' ? Store.clone(val) : val;
+    const parts = key.split('.');
+    const lastKey = parts.pop();
 
-    if (typeof val === "function") {
+    if (typeof val === 'function') {
       _val = val();
     }
 
@@ -130,7 +132,7 @@ export default class Store {
       return this.remove(key);
     }
 
-    parts.forEach(_key => {
+    parts.forEach((_key) => {
       if (!isValidObject(store[_key])) {
         store[_key] = {};
       }
@@ -166,11 +168,11 @@ export default class Store {
     }
 
     let store = this[__store];
-    let parts = key.split(".");
-    let lastKey = parts.pop();
+    const parts = key.split('.');
+    const lastKey = parts.pop();
 
-    for (let i = 0; i < parts.length; i++) {
-      let _key = parts[i];
+    for (let i = 0; i < parts.length; i += 1) {
+      const _key = parts[i];
 
       if (store.hasOwnProperty(_key) && isValidObject(store[_key])) {
         store = store[_key];
@@ -185,7 +187,7 @@ export default class Store {
       return defaultValue;
     }
 
-    return typeof store === "object" ? Store.clone(store) : store;
+    return typeof store === 'object' ? Store.clone(store) : store;
   }
 
   /*
@@ -209,21 +211,20 @@ export default class Store {
     }
 
     let store = this[__store];
-    let parts = key.split('.');
-    let lastKey = parts.pop();
-    let val;
+    const parts = key.split('.');
+    const lastKey = parts.pop();
 
-    for (let i = 0; i < parts.length; i++) {
-      let _key = parts[i];
+    for (let i = 0; i < parts.length; i += 1) {
+      const _key = parts[i];
 
       if (store.hasOwnProperty(_key) && isValidObject(store[_key])) {
         store = store[_key];
       } else {
-        return;
+        return undefined;
       }
     }
 
-    val = store[lastKey];
+    const val = store[lastKey];
 
     delete store[lastKey];
 
@@ -240,7 +241,7 @@ export default class Store {
    * Clears local storage.
    */
   clear() {
-    let store = this[__store];
+    const store = this[__store];
 
     this[__store] = {};
     this.__serializeAndSet();
@@ -252,7 +253,7 @@ export default class Store {
     try {
       return Store.deserialize(this[__ls].getItem(this[__name]));
     } catch (e) {
-      this[__error] = error("Error when trying to get data from localStorage!");
+      this[__error] = error('Error when trying to get data from localStorage!');
 
       logError(this[__error]);
 
@@ -265,7 +266,7 @@ export default class Store {
       this[__ls].setItem(this[__name], Store.serialize(this[__store]));
       this[__error] = null;
     } catch (e) {
-      this[__error] = error("Error when trying to set data to localStorage!");
+      this[__error] = error('Error when trying to set data to localStorage!');
 
       logError(this[__error]);
     }
@@ -277,7 +278,7 @@ export default class Store {
       return;
     }
 
-    let store = this.__getAndDeserialize();
+    const store = this.__getAndDeserialize();
 
     if (!isValidObject(store)) {
       return;
